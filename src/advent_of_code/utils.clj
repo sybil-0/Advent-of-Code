@@ -15,11 +15,14 @@
           (for [x [-1 0 1] y [-1 0 1]]
             [(+ i x) (+ j y)])))
 
+(defn boundaries [m]
+  [(apply min (map first (keys m)))
+   (inc (apply max (map first (keys m))))
+   (apply min (map second (keys m)))
+   (inc (apply max (map second (keys m))))])
+
 (defn pprint-map [m]
-  (let [min-x (apply min (map first (keys m)))
-        max-x (inc (apply max (map first (keys m))))
-        min-y (apply min (map second (keys m)))
-        max-y (inc (apply max (map second (keys m))))]
+  (let [[min-x max-x min-y max-y] (boundaries m)]
     (doseq [i (range min-x max-x)]
       (doseq [j (range min-y max-y)]
         (print (get m [i j] " ")))
