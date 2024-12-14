@@ -71,6 +71,14 @@
       (assoc g candidate dist)
       g)))
 
+(defn bfs [start m]
+  (loop [queue [start] seen #{}]
+    (let [[hd & tl] queue
+          more (remove seen (m hd))
+          seen* (conj seen hd)]
+      (if (empty? queue) seen
+          (recur (apply conj tl more) seen*)))))
+
 (defn dijkstra [start target grid]
   (loop [g (-> (into {} (map (fn [k] {k 999999}) (keys grid)))
                (assoc [0 0] 0))
@@ -90,6 +98,14 @@
   "swap to values in a vector."
   (assoc v i2 (v i1) i1 (v i2)))
 
+(defn rotate [v n]
+  (let [len (count v)
+       ; Normalize n to be within the vector's length
+        normalized-n (mod n len)]
+    (if (zero? normalized-n)
+      v ; Split the vector and rearrange
+      (into (subvec v (- len normalized-n))
+            (subvec v 0 (- len normalized-n))))))
 
 (defn insert
   "insert into vector at position i" 
