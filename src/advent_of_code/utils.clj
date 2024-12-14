@@ -10,7 +10,7 @@
   [xs]
   (vec (apply map vector xs)))
 
-(defn adjacent [m [i j]]
+(defn adjacent [[i j]]
   (remove #{[i j]}
           (for [x [-1 0 1] y [-1 0 1]]
             [(+ i x) (+ j y)])))
@@ -40,8 +40,8 @@
   [matrix]
   (->> (for [x (range (count matrix))
              y (range (count (first matrix)))
-             v (str (get (get matrix x) y )) ]
-         [[x y] (read-string (str v))])
+             v (str (get (get matrix x) y))]
+         [[x y] (str v)])
        (into {})))
 
 (defn map-to-2d [m]
@@ -58,8 +58,9 @@
         (print (get m [i j] " ")))
       (println))))
 
-(defn neighbors [[x y]]
-  [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]])
+(def neighbors 
+  (memoize (fn [[x y]]
+             [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]])))
 
 (defn tentative [g grid candidate current]
   (let [dist (+ current (grid candidate))]
