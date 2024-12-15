@@ -21,13 +21,7 @@
 
 (def move-input (str/trim (slurp "resources/2024/day15_steps.txt")))
 
-(def start [4 4])
-(def start-2 [4 8])
-
-(defn swap-keys [m seen dir]
-  (let [xs (map #(step % dir) seen)]
-    (-> (reduce (fn [acc p] (assoc acc p (m (first seen)))) m xs)
-        (assoc (first seen) "."))))
+(def start [24 48])
 
 (defn step [[x y] direction]
   (case direction
@@ -37,17 +31,56 @@
     "^" [(dec x) y]
     [x y]))
 
+(defn box? [m p] (or (= (m p) "[") (= (m p) "]")))
+
+(defn swap-keys [m seen dir]
+  (let [xs (map (fn [p] [(step p dir) (m p)]) seen)]
+    (-> (reduce (fn [acc [p v]] (assoc acc p v)) m xs)
+        (assoc (first seen) "."))))
+
+(defn next-row [m [x y] dir]
+  (let [c (m [x y])
+        ur [(dec x) (inc y)]
+        ul [(dec x) (dec y)]
+        bl [(inc x) (dec y)]
+        br [(inc x) (inc y)]
+        md [(inc x) y]
+        mu [(dec x) y]]
+    (case [c dir]
+      ["[" "v"] (if (= (m md) "]") [md bl] [md])
+      ["[" "^"] (if (= (m mu) "]") [mu ul] [mu])
+      ["]" "v"] (if (= (m md) "[") [md br] [md])
+      ["]" "^"] (if (= (m mu) "[") [mu ur] [mu]))))
+
+(defn connected-boxes [m [x y :as p] dir]
+  (loop [xs [p (if (= (m p) "[") [x (inc y)] [x (dec y)])] boxes (set xs)]
+    (let [nbs (mapcat #(next-row m % dir) xs)
+          xs* (filter #(box? m %) nbs)]
+      (if (empty? xs*) (apply conj boxes xs)
+          (recur xs* (apply conj boxes xs*))))))
+
 (defn push-boxes [m p dir]
   (loop [p* (step p dir) seen []]
     (condp = (m p*)
       "." (swap-keys m seen dir)
       "#" m
-      "O" (recur (step p* dir) (conj seen p*)))))
+      (recur (step p* dir) (conj seen p*)))))
 
-(defn simulate []
-  (loop [p start [x & xs] move-input m warehouse]
-    (let [p* (step p (str x))
-          m* (push-boxes m p (str x))]
+(defn push-stack [m p dir]
+  (let [boxes (vec (connected-boxes m p dir))
+        boxes* (map (fn [x] [(step x dir) (m x)]) boxes)]
+    (if (some #(= (m %) "#") (map first boxes*))
+      m
+      (reduce (fn [acc [x y]] (assoc acc x y))
+              (reduce #(assoc %1 %2 ".") m boxes) boxes*))))
+
+(defn simulate [wh]
+  (loop [p start [x & xs] move-input m wh]
+    (let [d (str x)
+          p* (step p d)
+          m* (if (and (or (= d "v") (= d "^")) (box? m p*))
+               (push-stack m p* d)
+               (push-boxes m p d))]
       (cond
         (nil? x) m
         (= (m p*) "#") (recur p xs m)
@@ -56,8 +89,8 @@
                 (recur p* xs m*)
                 (recur p xs m))))))
 
-(defn part-1 []
-  (let [result (simulate)]
-    (->> (filter #(= "O" (result %)) (keys result))
+(defn solve []
+  (let [result (simulate (assoc warehouse-wide start "."))]
+    (->> (filter #(= "[" (result %)) (keys result))
          (reduce (fn [acc [x y]] (+ acc (+ (* 100 x) y))) 0))))
 
