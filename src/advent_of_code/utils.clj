@@ -3,7 +3,7 @@
 
 (defn str-to-ints
   [xs]
-  (->> (re-seq  #"\d+" xs)
+  (->> (re-seq  #"-?\d+" xs)
        (map #(Integer/parseInt %))))
 
 (defn transpose
