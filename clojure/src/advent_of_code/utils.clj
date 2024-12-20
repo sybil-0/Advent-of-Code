@@ -65,11 +65,6 @@
   (memoize (fn [[x y]]
              [[(dec x) y] [(inc x) y] [x (dec y)] [x (inc y)]])))
 
-(defn tentative [g grid candidate current]
-  (let [dist (+ current (grid candidate))]
-    (if (> (g candidate) dist)
-      (assoc g candidate dist)
-      g)))
 
 (defn bfs [start m]
   (loop [queue [start] seen #{}]
@@ -78,6 +73,12 @@
           seen* (conj seen hd)]
       (if (empty? queue) seen
           (recur (apply conj tl more) seen*)))))
+
+(defn tentative [g grid candidate current]
+  (let [dist (+ current (grid candidate))]
+    (if (> (g candidate) dist)
+      (assoc g candidate dist)
+      g)))
 
 (defn dijkstra [start target grid]
   (loop [g (-> (into {} (map (fn [k] {k 999999}) (keys grid)))
