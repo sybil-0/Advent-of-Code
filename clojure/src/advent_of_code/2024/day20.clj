@@ -6,40 +6,27 @@
                     (str/split-lines)
                     (u/index2d)))
 
-(defn rm-invalid [m s xs]
-  (remove s (filter #(= "." (m %)) xs)))
+(def end [95 63])
 
-(defn shortest-path [start end m]
-  (loop [coll [start] seen #{}]
-    (let [xs (set (mapcat #(rm-invalid m seen (u/neighbors %)) coll))]
-      (cond
-        (contains? xs end) seen
-        (empty? xs) nil
-        :else (recur  xs (apply conj seen coll))))))
+(defn in-range [[x y] [i j]]
+  (<= (+ (abs (- x i)) (abs (- y j))) 20))
 
-(defn shortest-path-len [start end m]
-  (loop [coll [start] seen #{} i 0]
-    (let [xs (set (mapcat #(rm-invalid m seen (u/neighbors %)) coll))]
-      (cond
-        (contains? xs end) i
-        (empty? xs) -1
-        :else (recur  xs (apply conj seen coll) (inc i))))))
+(defn walk-path [cur seen]
+  (let [nbs (filter #(= "." (racetrack %)) (remove (set seen) (u/neighbors cur)))
+        nxt (first nbs)]
+    (if (= cur end) seen
+        (recur nxt (conj seen cur)))))
 
-(defn candidates [start end m]
-  (let [xs (shortest-path start end m)]
-    (filter (fn [[x y]] (and (or (and (= "." (m [(dec x) y])) (= "." (m [(inc x) y])))
-                                 (and (= "." (m [x (dec y)])) (= "." (m [x (inc y)]))))
-                             (= "#" (m [x y]))))
-            (set (mapcat u/neighbors xs)))))
+(defn shortcuts [path l]
+  (->> (for [i (range 0 (- l 100))]
+         (for [j (range (inc i) l)]
+           (when (in-range (nth path i) (nth path j)) (- j i))))
+       (flatten)
+       (remove nil?)))
 
 (defn part-1 []
-  (let [start [111 75]
-        end  [95 63]
-        m (-> racetrack (assoc start ".") (assoc end "."))
-        walls (candidates start end m)
-        orig-path (shortest-path start end m)
-        orig-time (count orig-path)]
-    (->> (pmap #(- orig-time (shortest-path-len start end (assoc m % "."))) walls)
-         (filter #(>= % 100))
-         (count)
-         (println))))
+  (let [path (conj (walk-path [111 75] []) end) 
+        l (dec (count path))
+        diffs (shortcuts path l)]
+    (->> (filter #(>= % 102) diffs)
+         (count))))
