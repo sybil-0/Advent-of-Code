@@ -6,8 +6,8 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [org.clojure/math.combinatorics "0.3.0"]
                  [org.clojure/core.logic "1.1.0"]]
-  :main ^:skip-aot advent-of-code.2024.day18
+  :main ^:skip-aot advent-of-code.2024.day14
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"
-                                  "-Djdk.attach.allowAttachSelf=true"]}})
+                                  "-Djdk.attach.allowAttachSelf"]}})

@@ -28,3 +28,5 @@
 (defn part-2 []
   (-(reduce + (map length input))
     (reduce + (map count input))))
+
+(part-2)

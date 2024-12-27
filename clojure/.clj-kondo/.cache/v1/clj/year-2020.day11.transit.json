@@ -1,0 +1,1 @@
+["^ ","~$seats-start",["^ ","~:row",5,"~:col",1,"~:name","^0","~:ns","~$year-2020.day11","~:top-ns","^5"],"~$south",["^ ","^1",9,"^2",1,"~:fixed-arities",["~#set",[3]],"^3","^7","^4","^5","^6","^5","~:type","~:fn"],"~:filename","/home/kevinh/src/advent-of-code/clojure/src/advent_of_code/2020/day11.clj"]

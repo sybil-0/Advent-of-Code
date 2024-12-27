@@ -1,10 +1,6 @@
 from virtualmachine import VirtualMachine
 from itertools import permutations
 
-
-ASDFSDF = 10
-asdfasdf =10
-
 with open("day7.txt", "r") as infile:
     data = infile.read().strip()
     PROGRAM = [int(x) for x in data.split(",")]

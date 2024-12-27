@@ -21,3 +21,4 @@
 (defn solve [xs]
   (->> (map (comp extrapolate histories) xs)
        (reduce +)))
+
